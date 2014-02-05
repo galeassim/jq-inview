@@ -1,3 +1,19 @@
+UPSTREAMS
+[remote "upstream/protonet"]
+	url = https://github.com/protonet/jquery.inview.git
+	fetch = +refs/heads/*:refs/remotes/upstream/protonet/*
+[remote "upstream/zuk"]
+	url = https://github.com/zuk/jquery.inview.git
+	fetch = +refs/heads/*:refs/remotes/upstream/zuk/*
+[remote "upstream/webmie"]
+	url = https://github.com/Webmie/jquery.inview.git
+	fetch = +refs/heads/*:refs/remotes/upstream/webmie/*
+[remote "upstream/mmmeff"]
+	url = https://github.com/mmmeff/jquery.inview2.git
+	fetch = +refs/heads/*:refs/remotes/upstream/mmmeff/*
+
+
+
 # Element 'in view' Event Plugin
 
 *Author:* Remy Sharp
