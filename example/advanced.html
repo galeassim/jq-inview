@@ -43,6 +43,14 @@
       position: fixed;
       text-shadow: 1px 2px 3px black;
     }
+    .visi-dir {
+      position: absolute;
+    }
+    .c-n { top: 0; left: 50%; }
+    .c-e { right: 0; top: 50%; }
+    .c-w { left: 0; top: 50%; }
+    .c-s { bottom: 0; left: 50%; }
+    .touch { color: yellow; }
   </style>
 </head>
 <body>
@@ -55,6 +63,10 @@
   </div>
 
   <div id="fix-element" class="box">
+    <span class="visi-dir c-n">*</span>
+    <span class="visi-dir c-e">*</span>
+    <span class="visi-dir c-w">*</span>
+    <span class="visi-dir c-s">*</span>
     <div>
       <p>X: <span class="visi-part-x"></span></p>
       <p>Y: <span class="visi-part-y"></span></p>
@@ -62,10 +74,30 @@
   </div>
 
   <script>
-    $('#abs-element').bind('inview', function(event, visi, visiX, visiY) {
+    $('#abs-element').bind('inview', function (event, visi, visiX, visiY) {
       if (visi) {
-        $('.visi-part-x').html(visiX);
-        $('.visi-part-y').html(visiY);
+        if (visiX) {
+          $('.visi-part-x').html(visiX);
+
+          if (visiX === 'left') {
+            $('.c-w').removeClass('touch');
+            $('.c-e').addClass('touch');
+          } else if (visiX === 'right') {
+            $('.c-e').removeClass('touch');
+            $('.c-w').addClass('touch');
+          }
+        }
+        if (visiY) {
+          $('.visi-part-y').html(visiY);
+
+          if (visiY === 'top') {
+            $('.c-n').removeClass('touch');
+            $('.c-s').addClass('touch');
+          } else if (visiY === 'bottom') {
+            $('.c-s').removeClass('touch');
+            $('.c-n').addClass('touch');
+          }
+        }
       } else {
         $('.visi-part-x, .visi-part-y').html('none');
       }
