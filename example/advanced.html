@@ -75,32 +75,40 @@
 
   <script>
     $('#abs-element').bind('inview', function (event, visi, visiX, visiY) {
+      var dir = {
+        n: 0,
+        s: 0,
+        e: 0,
+        w: 0,
+      };
       if (visi) {
+        $('.visi-dir').removeClass('touch');
         if (visiX) {
           $('.visi-part-x').html(visiX);
-
+          dir.w = dir.e = 1;
           if (visiX === 'left') {
-            $('.c-w').removeClass('touch');
+            dir.w = 0;
             $('.c-e').addClass('touch');
           } else if (visiX === 'right') {
-            $('.c-e').removeClass('touch');
             $('.c-w').addClass('touch');
+            dir.e = 0;
           }
         }
         if (visiY) {
           $('.visi-part-y').html(visiY);
-
+          dir.n = dir.s = 1;
           if (visiY === 'top') {
-            $('.c-n').removeClass('touch');
+            dir.n = 0;
             $('.c-s').addClass('touch');
           } else if (visiY === 'bottom') {
-            $('.c-s').removeClass('touch');
             $('.c-n').addClass('touch');
+            dir.s = 0;
           }
         }
       } else {
         $('.visi-part-x, .visi-part-y').html('none');
       }
+      console.log(dir);
     });
   </script>
 </body>
