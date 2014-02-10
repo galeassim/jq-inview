@@ -1,19 +1,3 @@
-UPSTREAMS
-[remote "upstream/protonet"]
-	url = https://github.com/protonet/jquery.inview.git
-	fetch = +refs/heads/*:refs/remotes/upstream/protonet/*
-[remote "upstream/zuk"]
-	url = https://github.com/zuk/jquery.inview.git
-	fetch = +refs/heads/*:refs/remotes/upstream/zuk/*
-[remote "upstream/webmie"]
-	url = https://github.com/Webmie/jquery.inview.git
-	fetch = +refs/heads/*:refs/remotes/upstream/webmie/*
-[remote "upstream/mmmeff"]
-	url = https://github.com/mmmeff/jquery.inview2.git
-	fetch = +refs/heads/*:refs/remotes/upstream/mmmeff/*
-
-
-
 # Element 'in view' Event Plugin
 
 *Author:* Remy Sharp
@@ -176,3 +160,32 @@ This way the user can treat it like a native event on the page.
 [detect when an element scrolls in to view code]: http://www.dustindiaz.com/element-scroll-into-view/
 [Download jQuery inview event plugin]: http://remysharp.com/downloads/jquery.inview.js
 [$.support]: http://api.jquery.com/?support
+
+### UPSTREAMS
+    [remote "upstream/protonet"]
+    	url = https://github.com/protonet/jquery.inview.git
+    	fetch = +refs/heads/*:refs/remotes/upstream/protonet/*
+    [remote "upstream/zuk"]
+    	url = https://github.com/zuk/jquery.inview.git
+    	fetch = +refs/heads/*:refs/remotes/upstream/zuk/*
+    [remote "upstream/webmie"]
+    	url = https://github.com/Webmie/jquery.inview.git
+    	fetch = +refs/heads/*:refs/remotes/upstream/webmie/*
+    [remote "upstream/mmmeff"]
+    	url = https://github.com/mmmeff/jquery.inview2.git
+    	fetch = +refs/heads/*:refs/remotes/upstream/mmmeff/*
+
+### LICENSE
+    DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+    Version 2, December 2004
+
+    Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+    Everyone is permitted to copy and distribute verbatim or modified
+    copies of this license document, and changing it is allowed as long
+    as the name is changed.
+
+    DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+    0. You just DO WHAT THE FUCK YOU WANT TO.
