@@ -3,12 +3,30 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 (function ($, W) {
-    var inviewObjects = {},
-        viewSize, viewOffset, D, DE, expando, timer;
+    var name = 'inview',
+        inviewObjects = {},
+        viewSize, viewOffset, D, DE, expando, port, propL, propT, timer;
 
     D = W.document;
     DE = D.documentElement;
     expando = $.expando;
+    propL = 'scrollLeft';
+    propT = 'scrollTop';
+
+    function _def() {
+        return (typeof arguments[0] !== 'undefined');
+    }
+
+    if (_def(W.pageXOffset)) {
+        port = W;
+        propL = 'pageXOffset';
+        propT = 'pageYOffset';
+    } else if (_def(DE.scrollLeft)) {
+        port = DE;
+    } else {
+        port = D.body;
+    }
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
     function getPortSize() {
         var mode, domObject, size = {
@@ -34,13 +52,10 @@
         return size;
     }
 
-    function getPortOffset() { // TODO
-        // body.scrollLeft is deprecated in strict mode.
-        // Please use 'documentElement.scrollLeft' if in strict mode
-        // and 'body.scrollLeft' only if in quirks mode.
+    function getPortOffset() {
         return {
-            top: W.pageYOffset || DE.scrollTop || D.body.scrollTop,
-            left: W.pageXOffset || DE.scrollLeft || D.body.scrollLeft
+            left: port[propL],
+            top: port[propT],
         };
     }
 
@@ -71,7 +86,7 @@
                     width: $ele.width(),
                 };
                 eleOffset = $ele.offset();
-                inView = $ele.data('inview');
+                inView = $ele.data(name);
 
                 /*
                 For unknown reasons:
@@ -95,16 +110,16 @@
                     'top' : 'both');
                     visiPartsMerged = visiPartX + "-" + visiPartY;
                     if (!inView || inView !== visiPartsMerged) {
-                        $ele.data('inview', visiPartsMerged).trigger('inview', [true, visiPartX, visiPartY]);
+                        $ele.data(name, visiPartsMerged).trigger(name, [true, visiPartX, visiPartY]);
                     }
                 } else if (inView) {
-                    $ele.data('inview', false).trigger('inview', [false]);
+                    $ele.data(name, false).trigger(name, [false]);
                 }
             });
         }
     }
 
-    $.event.special.inview = {
+    $.event.special[name] = {
         add: function (data) {
             inviewObjects[data.guid + "-" + this[expando]] = {
                 data: data,
