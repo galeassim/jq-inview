@@ -14,22 +14,22 @@
     margin: 40px;
   }
 </style>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.js"></script>
 <script src="../jquery.inview.js"></script>
 <script>
   $(function() {
     $('img[data-src]').live('inview', function(event, isVisible) {
       if (!isVisible) { return; }
-      
+
       var img = $(this);
-      
+
       // Show a smooth animation
       img.css('opacity', 0);
       img.load(function() { img.animate({ opacity: 1 }, 500); });
-      
+
       // Change src
       img.attr('src', img.attr('data-src'));
-      
+
       // Remove it from live event selector
       img.removeAttr('data-src');
     });
