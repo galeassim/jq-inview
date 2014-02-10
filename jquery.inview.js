@@ -2,28 +2,28 @@
 /*globals jQuery, window */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-(function ($) {
+(function ($, W) {
     var inviewObjects = {},
-        viewportSize, viewportOffset, d = document,
-        w = window,
-        documentElement = d.documentElement,
-        expando = $.expando,
-        timer;
+        viewSize, viewOffset, D, DE, expando, timer;
 
-    function getViewportSize() {
+    D = W.document;
+    DE = D.documentElement;
+    expando = $.expando;
+
+    function getPortSize() {
         var mode, domObject, size = {
-            height: w.innerHeight,
-            width: w.innerWidth
+            height: W.innerHeight,
+            width: W.innerWidth
         };
 
         // if this is correct then return it.
         // iPad has compat Mode, so will go into check clientHeight/clientWidth
         // (which has the wrong value).
         if (!size.height) {
-            mode = d.compatMode;
+            mode = D.compatMode;
             if (mode || !$.support.boxModel) { // IE, Gecko
-                domObject = mode === 'CSS1Compat' ? documentElement : // Standards
-                d.body; // Quirks
+                domObject = mode === 'CSS1Compat' ? DE : // Standards
+                D.body; // Quirks
                 size = {
                     height: domObject.clientHeight,
                     width: domObject.clientWidth
@@ -34,42 +34,44 @@
         return size;
     }
 
-    function getViewportOffset() {
+    function getPortOffset() { // TODO
+        // body.scrollLeft is deprecated in strict mode.
+        // Please use 'documentElement.scrollLeft' if in strict mode
+        // and 'body.scrollLeft' only if in quirks mode.
         return {
-            top: w.pageYOffset || documentElement.scrollTop || d.body.scrollTop,
-            left: w.pageXOffset || documentElement.scrollLeft || d.body.scrollLeft
+            top: W.pageYOffset || DE.scrollTop || D.body.scrollTop,
+            left: W.pageXOffset || DE.scrollLeft || D.body.scrollLeft
         };
     }
 
     function checkInView() {
-        var $elements = $(),
-            elementsLength, i = 0;
+        var $eles = $();
 
         $.each(inviewObjects, function (i, inviewObject) {
             var selector = inviewObject.data.selector,
-                $element = inviewObject.$element;
-            $elements = $elements.add(selector ? $element.find(selector) : $element);
+                $ele = inviewObject.$ele;
+            $eles = $eles.add(selector ? $ele.find(selector) : $ele);
         });
 
-        elementsLength = $elements.length;
-        if (elementsLength) {
-            viewportSize = viewportSize || getViewportSize();
-            viewportOffset = viewportOffset || getViewportOffset();
+        if ($eles.length) {
+            viewSize = viewSize || getPortSize();
+            viewOffset = viewOffset || getPortOffset();
 
-            for (; i < elementsLength; i++) {
+            $eles.each(function (i, e) {
+                var $ele, eleSize, eleOffset, inView, visiPartX, visiPartY, visiPartsMerged;
+
                 // Ignore elements that are not in the DOM tree
-                if (!$.contains(documentElement, $elements[i])) {
-                    continue;
+                if (!$.contains(DE, $eles[i])) {
+                    return;
                 }
 
-                var $element = $($elements[i]),
-                    elementSize = {
-                    height: $element.height(),
-                    width: $element.width()
-                },
-                    elementOffset = $element.offset(),
-                    inView = $element.data('inview'),
-                    visiblePartX, visiblePartY, visiblePartsMerged;
+                $ele = $($eles[i]);
+                eleSize = {
+                    height: $ele.height(),
+                    width: $ele.width(),
+                };
+                eleOffset = $ele.offset();
+                inView = $ele.data('inview');
 
                 /*
                 For unknown reasons:
@@ -77,28 +79,28 @@
                     It seems that the execution of this function is interferred
                         by the onresize/onscroll event where viewportOffset and viewportSize are unset
                 */
-                if (!viewportOffset || !viewportSize) {
+                if (!viewOffset || !viewSize) {
                     return;
                 }
 
-                if (elementOffset.top + elementSize.height > viewportOffset.top && //
-                elementOffset.top < viewportOffset.top + viewportSize.height && //
-                elementOffset.left + elementSize.width > viewportOffset.left && //
-                elementOffset.left < viewportOffset.left + viewportSize.width) {
-                    visiblePartX = (viewportOffset.left > elementOffset.left ? //
-                    'right' : (viewportOffset.left + viewportSize.width) < (elementOffset.left + elementSize.width) ? //
+                if (eleOffset.top + eleSize.height > viewOffset.top && //
+                eleOffset.top < viewOffset.top + viewSize.height && //
+                eleOffset.left + eleSize.width > viewOffset.left && //
+                eleOffset.left < viewOffset.left + viewSize.width) {
+                    visiPartX = (viewOffset.left > eleOffset.left ? //
+                    'right' : (viewOffset.left + viewSize.width) < (eleOffset.left + eleSize.width) ? //
                     'left' : 'both');
-                    visiblePartY = (viewportOffset.top > elementOffset.top ? //
-                    'bottom' : (viewportOffset.top + viewportSize.height) < (elementOffset.top + elementSize.height) ? //
+                    visiPartY = (viewOffset.top > eleOffset.top ? //
+                    'bottom' : (viewOffset.top + viewSize.height) < (eleOffset.top + eleSize.height) ? //
                     'top' : 'both');
-                    visiblePartsMerged = visiblePartX + "-" + visiblePartY;
-                    if (!inView || inView !== visiblePartsMerged) {
-                        $element.data('inview', visiblePartsMerged).trigger('inview', [true, visiblePartX, visiblePartY]);
+                    visiPartsMerged = visiPartX + "-" + visiPartY;
+                    if (!inView || inView !== visiPartsMerged) {
+                        $ele.data('inview', visiPartsMerged).trigger('inview', [true, visiPartX, visiPartY]);
                     }
                 } else if (inView) {
-                    $element.data('inview', false).trigger('inview', [false]);
+                    $ele.data('inview', false).trigger('inview', [false]);
                 }
-            }
+            });
         }
     }
 
@@ -106,7 +108,7 @@
         add: function (data) {
             inviewObjects[data.guid + "-" + this[expando]] = {
                 data: data,
-                $element: $(this)
+                $ele: $(this)
             };
 
             /*
@@ -137,15 +139,15 @@
         }
     };
 
-    $(w).bind("scroll resize", function () {
-        viewportSize = viewportOffset = null;
+    $(W).bind("scroll resize", function () {
+        viewSize = viewOffset = null;
     });
 
     // IE < 9 scrolls to focused elements without firing the "scroll" event
-    if (!documentElement.addEventListener && documentElement.attachEvent) {
-        documentElement.attachEvent("onfocusin", function () {
-            viewportOffset = null;
+    if (!DE.addEventListener && DE.attachEvent) {
+        DE.attachEvent("onfocusin", function () {
+            viewOffset = null;
         });
     }
-}(jQuery));
+}(jQuery, window));
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
