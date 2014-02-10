@@ -5,7 +5,7 @@
 (function ($, W) {
     var name = 'inview',
         inviewObjects = {},
-        viewSize, viewOffset, D, DE, expando, port, propL, propT, timer;
+        vSiz, vOff, D, DE, expando, port, propL, propT, timer;
 
     D = W.document;
     DE = D.documentElement;
@@ -69,11 +69,11 @@
         });
 
         if ($eles.length) {
-            viewSize = viewSize || getPortSize();
-            viewOffset = viewOffset || getPortOffset();
+            vSiz = vSiz || getPortSize();
+            vOff = vOff || getPortOffset();
 
             $eles.each(function (i, e) {
-                var $ele, eleSize, eleOffset, inView, visiPartX, visiPartY, visiPartsMerged;
+                var $ele, eSiz, eOff, inView, visiX, visiY, visiMerged;
 
                 // Ignore elements that are not in the DOM tree
                 if (!$.contains(DE, $eles[i])) {
@@ -81,11 +81,11 @@
                 }
 
                 $ele = $($eles[i]);
-                eleSize = {
+                eSiz = {
                     height: $ele.height(),
                     width: $ele.width(),
                 };
-                eleOffset = $ele.offset();
+                eOff = $ele.offset();
                 inView = $ele.data(name);
 
                 /*
@@ -94,23 +94,23 @@
                     It seems that the execution of this function is interferred
                         by the onresize/onscroll event where viewportOffset and viewportSize are unset
                 */
-                if (!viewOffset || !viewSize) {
+                if (!vOff || !vSiz) {
                     return;
                 }
 
-                if (eleOffset.top + eleSize.height > viewOffset.top && //
-                eleOffset.top < viewOffset.top + viewSize.height && //
-                eleOffset.left + eleSize.width > viewOffset.left && //
-                eleOffset.left < viewOffset.left + viewSize.width) {
-                    visiPartX = (viewOffset.left > eleOffset.left ? //
-                    'right' : (viewOffset.left + viewSize.width) < (eleOffset.left + eleSize.width) ? //
+                if (eOff.top + eSiz.height > vOff.top && //
+                eOff.top < vOff.top + vSiz.height && //
+                eOff.left + eSiz.width > vOff.left && //
+                eOff.left < vOff.left + vSiz.width) {
+                    visiX = (vOff.left > eOff.left ? //
+                    'right' : (vOff.left + vSiz.width) < (eOff.left + eSiz.width) ? //
                     'left' : 'both');
-                    visiPartY = (viewOffset.top > eleOffset.top ? //
-                    'bottom' : (viewOffset.top + viewSize.height) < (eleOffset.top + eleSize.height) ? //
+                    visiY = (vOff.top > eOff.top ? //
+                    'bottom' : (vOff.top + vSiz.height) < (eOff.top + eSiz.height) ? //
                     'top' : 'both');
-                    visiPartsMerged = visiPartX + "-" + visiPartY;
-                    if (!inView || inView !== visiPartsMerged) {
-                        $ele.data(name, visiPartsMerged).trigger(name, [true, visiPartX, visiPartY]);
+                    visiMerged = visiX + "-" + visiY;
+                    if (!inView || inView !== visiMerged) {
+                        $ele.data(name, visiMerged).trigger(name, [true, visiX, visiY]);
                     }
                 } else if (inView) {
                     $ele.data(name, false).trigger(name, [false]);
@@ -137,7 +137,7 @@
             Don't set interval until we get at least one element that has bound to the inview event.
             */
             if (!timer && !$.isEmptyObject(inviewObjects)) {
-                timer = setInterval(checkInView, 250);
+                timer = W.setInterval(checkInView, 250);
             }
         },
 
@@ -148,20 +148,20 @@
 
             // Clear interval when we no longer have any elements listening
             if ($.isEmptyObject(inviewObjects)) {
-                clearInterval(timer);
+                W.clearInterval(timer);
                 timer = null;
             }
         }
     };
 
     $(W).bind("scroll resize", function () {
-        viewSize = viewOffset = null;
+        vSiz = vOff = null;
     });
 
     // IE < 9 scrolls to focused elements without firing the "scroll" event
     if (!DE.addEventListener && DE.attachEvent) {
         DE.attachEvent("onfocusin", function () {
-            viewOffset = null;
+            vOff = null;
         });
     }
 }(jQuery, window));
