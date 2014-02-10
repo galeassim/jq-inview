@@ -161,6 +161,13 @@ This way the user can treat it like a native event on the page.
 [Download jQuery inview event plugin]: http://remysharp.com/downloads/jquery.inview.js
 [$.support]: http://api.jquery.com/?support
 
+***
+
+### AUTHORS
+    author Christopher Blum
+    based on the idea of Remy Sharp, http://remysharp.com/2009/01/26/element-in-view-event-plugin/
+    forked from http://github.com/zuk/jquery.inview/
+
 ### UPSTREAMS
     [remote "upstream/protonet"]
     	url = https://github.com/protonet/jquery.inview.git
