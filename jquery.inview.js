@@ -10,41 +10,6 @@
         expando = $.expando,
         timer;
 
-    $.event.special.inview = {
-        add: function (data) {
-            inviewObjects[data.guid + "-" + this[expando]] = {
-                data: data,
-                $element: $(this)
-            };
-
-            /*
-            Use setInterval to ensure this captures elements within "overflow:scroll" elements
-            or elements that appeared in the dom tree due to dom manipulation and reflow
-            old: $(window).scroll(checkInView);
-
-            BTW, iOS seems to not execute (or delay) intervals while the user scrolls.
-            Therefore the inview event might fire a bit late there
-
-            Don't set interval until we get at least one element that has bound to the inview event.
-            */
-            if (!timer && !$.isEmptyObject(inviewObjects)) {
-                timer = setInterval(checkInView, 250);
-            }
-        },
-
-        remove: function (data) {
-            try {
-                delete inviewObjects[data.guid + "-" + this[expando]];
-            } catch (e) {}
-
-            // Clear interval when we no longer have any elements listening
-            if ($.isEmptyObject(inviewObjects)) {
-                clearInterval(timer);
-                timer = null;
-            }
-        }
-    };
-
     function getViewportSize() {
         var mode, domObject, size = {
             height: w.innerHeight,
@@ -137,6 +102,41 @@
         }
     }
 
+    $.event.special.inview = {
+        add: function (data) {
+            inviewObjects[data.guid + "-" + this[expando]] = {
+                data: data,
+                $element: $(this)
+            };
+
+            /*
+            Use setInterval to ensure this captures elements within "overflow:scroll" elements
+            or elements that appeared in the dom tree due to dom manipulation and reflow
+            old: $(window).scroll(checkInView);
+
+            BTW, iOS seems to not execute (or delay) intervals while the user scrolls.
+            Therefore the inview event might fire a bit late there
+
+            Don't set interval until we get at least one element that has bound to the inview event.
+            */
+            if (!timer && !$.isEmptyObject(inviewObjects)) {
+                timer = setInterval(checkInView, 250);
+            }
+        },
+
+        remove: function (data) {
+            try {
+                delete inviewObjects[data.guid + "-" + this[expando]];
+            } catch (e) {}
+
+            // Clear interval when we no longer have any elements listening
+            if ($.isEmptyObject(inviewObjects)) {
+                clearInterval(timer);
+                timer = null;
+            }
+        }
+    };
+
     $(w).bind("scroll resize", function () {
         viewportSize = viewportOffset = null;
     });
@@ -147,5 +147,5 @@
             viewportOffset = null;
         });
     }
-})(jQuery);
+}(jQuery));
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
