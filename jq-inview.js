@@ -3,20 +3,22 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 (function (W, $) {
-    var C = W.console,
-        D = W.document,
-        time = 222,
-        name = 'inview',
+    var name = 'inview',
         inviewObjects = {},
-        documentElement = D.documentElement,
-        expando = $.expando,
-        viewportSize, viewportOffset, X;
+        time = 222,
+        vSiz, vOff, D, DE, expando;
+
+    C = W.console,
+    D = W.document;
+    DE = D.documentElement;
+    expando = $.expando;
+
 
     $.event.special.inview = {
         add: function (data) {
             inviewObjects[data.guid + "-" + this[expando]] = {
                 data: data,
-                $element: $(this)
+                $ele: $(this)
             };
         },
         remove: function (data) {
@@ -26,10 +28,8 @@
         }
     };
 
-    function getViewportSize() {
-        var mode, domObject, size;
-
-        size = {
+    function getPortSize() {
+        var mode, domObject, size = {
             height: W.innerHeight,
             width: W.innerWidth
         };
@@ -40,7 +40,7 @@
         if (!size.height) {
             mode = D.compatMode;
             if (mode || !$.support.boxModel) { // IE, Gecko
-                domObject = mode === 'CSS1Compat' ? documentElement : // Standards
+                domObject = mode === 'CSS1Compat' ? DE : // Standards
                 D.body; // Quirks
                 size = {
                     height: domObject.clientHeight,
@@ -52,10 +52,10 @@
         return size;
     }
 
-    function getViewportOffset() {
+    function getPortOffset() {
         return {
-            top: W.pageYOffset || documentElement.scrollTop || D.body.scrollTop,
-            left: W.pageXOffset || documentElement.scrollLeft || D.body.scrollLeft
+            left: W.pageXOffset || DE.scrollLeft || D.body.scrollLeft,
+            top: W.pageYOffset || DE.scrollTop || D.body.scrollTop
         };
     }
 
@@ -89,74 +89,76 @@
         if (!W.dust) {
             return;
         }
-        var $elements = $(),
-            elementsLength, i = 0;
+        var $eles = $(),
+            i = 0;
 
         $.each(inviewObjects, function (i, inviewObject) {
             var selector = inviewObject.data.selector,
-                $element = inviewObject.$element;
-            $elements = $elements.add(selector ? $element.find(selector) : $element);
+                $ele = inviewObject.$ele;
+            $eles = $eles.add(selector ? $ele.find(selector) : $ele);
         });
 
-        elementsLength = $elements.length;
-        if (elementsLength) {
-            viewportSize = viewportSize || getViewportSize();
-            viewportOffset = viewportOffset || getViewportOffset();
+        if ($eles.length) {
+            vSiz = vSiz || getPortSize();
+            vOff = vOff || getPortOffset();
 
-            for (; i < elementsLength; i++) {
+            for (; i < $eles.length; i++) {
+                var $ele, eSiz, eOff, inView, visiX, visiY, visiMerged;
+
                 // Ignore elements that are not in the DOM tree
-                if (!$.contains(documentElement, $elements[i])) {
+                if (!$.contains(DE, $eles[i])) {
                     continue;
                 }
 
-                var $element = $($elements[i]),
-                    elementSize = {
-                    height: $element.height(),
-                    width: $element.width()
-                },
-                    elementOffset = $element.offset(),
-                    inView = $element.data(name),
-                    visiblePartX, visiblePartY, visiblePartsMerged;
+                $ele = $($eles[i]);
+                eSiz = {
+                    height: $ele.height(),
+                    width: $ele.width()
+                };
+                eOff = $ele.offset();
+                inView = $ele.data(name);
+
                 /*
                 For unknown reasons:
                     viewportOffset and viewportSize are sometimes suddenly null in Firefox 5.
                     It seems that the execution of this function is interferred
                         by the onresize/onscroll event where viewportOffset and viewportSize are unset
                 */
-                if (!viewportOffset || !viewportSize) {
+                if (!vOff || !vSiz) {
                     return;
                 }
-                var eO = elementOffset,
-                    vO = viewportOffset,
-                    eS = elementSize,
-                    vS = viewportSize,
-                    vPX = visiblePartX,
-                    vPY = visiblePartY,
-                    vPM = visiblePartsMerged;
 
-                if (eO.top + eS.height > vO.top && eO.top < vO.top + vS.height && eO.left + eS.width > vO.left && eO.left < vO.left + vS.width) {
-                    vPX = (vO.left > eO.left ? 'right' : (vO.left + vS.width) < (eO.left + eS.width) ? 'left' : 'both');
-                    vPY = (vO.top > eO.top ? 'bottom' : (vO.top + vS.height) < (eO.top + eS.height) ? 'top' : 'both');
-                    vPM = vPX + "-" + vPY;
-                    if (!inView || inView !== vPM) {
-                        $element.data(name, vPM).trigger(name, [true, vPX, vPY]);
+                if (eOff.top + eSiz.height > vOff.top && //
+                    eOff.top < vOff.top + vSiz.height && //
+                    eOff.left + eSiz.width > vOff.left && //
+                    eOff.left < vOff.left + vSiz.width) {
+                    visiX = (vOff.left > eOff.left ? //
+                        'right' : (vOff.left + vSiz.width) < (eOff.left + eSiz.width) ? //
+                        'left' : 'both');
+                    visiY = (vOff.top > eOff.top ? //
+                        'bottom' : (vOff.top + vSiz.height) < (eOff.top + eSiz.height) ? //
+                        'top' : 'both');
+                    visiMerged = visiX + "-" + visiY;
+                    if (!inView || inView !== visiMerged) {
+                        $ele.data(name, visiMerged).trigger(name, [true, visiX, visiY]);
                     }
                 } else if (inView) {
-                    $element.data(name, false).trigger(name, [false]);
+                    $ele.data(name, false).trigger(name, [false]);
                 }
+
             }
         }
         W.dust(-1);
     }
 
     $(W).bind("scroll resize", function () {
-        viewportSize = viewportOffset = null;
+        vSiz = vOff = null;
     });
 
     // IE < 9 scrolls to focused elements without firing the "scroll" event
-    if (!documentElement.addEventListener && documentElement.attachEvent) {
-        documentElement.attachEvent("onfocusin", function () {
-            viewportOffset = null;
+    if (!DE.addEventListener && DE.attachEvent) {
+        DE.attachEvent("onfocusin", function () {
+            vOff = null;
         });
     }
     /*
