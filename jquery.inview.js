@@ -4,36 +4,44 @@
 
 (function (W, $) {
     var name = 'inview',
-        inviewObjects = {},
-        vSiz, vOff, D, DE, vPort, speed, timer, xProp, yProp;
-
-    D = W.document;
-    DE = D.documentElement;
-    speed = 222;
-    xProp = 'scrollLeft';
-    yProp = 'scrollTop';
-
+        vSiz, vOff, C, D, DE, Df;
+    //
     function _def() {
         return (typeof arguments[0] !== 'undefined');
     }
 
+    C = W.console;
+    D = W.document;
+    DE = D.documentElement;
+    Df = {
+        cache: {}, // store watched items
+        count: 0,  // for kicks, count number of runs
+        prsec: 10, // force checking per second
+        timer: null, // if not needed keep ref to clear interval
+        vPort: null, // the key view port element
+        xProp: 'scrollLeft', // fallback
+        yProp: 'scrollTop', // by default
+        inits: function () {
+            this.prsec = 1000 / this.prsec;
+
+            // configure for port element
+            if (_def(W.pageXOffset)) {
+                this.vPort = W;
+                this.xProp = 'pageXOffset';
+                this.yProp = 'pageYOffset';
+            } else if (_def(DE.scrollLeft)) {
+                this.vPort = DE;
+            } else {
+                this.vPort = D.body;
+            }
+        },
+    };
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-    (function configPort() {
-        if (_def(W.pageXOffset)) {
-            vPort = W;
-            xProp = 'pageXOffset';
-            yProp = 'pageYOffset';
-        } else if (_def(DE.scrollLeft)) {
-            vPort = DE;
-        } else {
-            vPort = D.body;
-        }
-    }());
 
     function getPortOffset() {
         return {
-            left: vPort[xProp],
-            top: vPort[yProp],
+            left: Df.vPort[Df.xProp],
+            top: Df.vPort[Df.yProp],
         };
     }
 
@@ -64,7 +72,7 @@
     function checkInView() {
         var $eles = $();
 
-        $.each(inviewObjects, function (i, inviewObject) {
+        $.each(Df.cache, function (i, inviewObject) {
             var selector = inviewObject.data.selector,
                 $ele = inviewObject.$ele;
             $eles = $eles.add(selector ? $ele.find(selector) : $ele);
@@ -121,13 +129,21 @@
         }
     }
 
+    function _forceCheck() {
+        if (W.debug > 1) {
+            C.debug('_forceCheck');
+        }
+        checkInView();
+        Df.count++;
+    }
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
     $.event.special[name] = {
         add: function (data) {
-            inviewObjects[data.guid + "-" + this[$.expando]] = {
+            Df.cache[data.guid + "-" + this[$.expando]] = {
                 data: data,
                 $ele: $(this)
             };
-
             /*
             Use setInterval to ensure this captures elements within "overflow:scroll" elements
             or elements that appeared in the dom tree due to dom manipulation and reflow
@@ -138,33 +154,40 @@
 
             Don't set interval until we get at least one element that has bound to the inview event.
             */
-            if (!timer && !$.isEmptyObject(inviewObjects)) {
-                timer = W.setInterval(checkInView, speed);
+            if (!Df.timer && !$.isEmptyObject(Df.cache)) {
+                Df.timer = W.setInterval(_forceCheck, Df.prsec);
             }
         },
 
         remove: function (data) {
             try {
-                delete inviewObjects[data.guid + "-" + this[$.expando]];
+                delete Df.cache[data.guid + "-" + this[$.expando]];
             } catch (e) {}
 
             // Clear interval when we no longer have any elements listening
-            if ($.isEmptyObject(inviewObjects)) {
-                W.clearInterval(timer);
-                timer = null;
+            if ($.isEmptyObject(Df.cache)) {
+                W.clearInterval(Df.timer);
+                Df.timer = null;
             }
         }
     };
 
-    $(W).bind("scroll resize", function () {
-        vSiz = vOff = null;
-    });
+    function _init() {
+        Df.inits();
+        W.INVIEW = Df;
 
-    // IE < 9 scrolls to focused elements without firing the "scroll" event
-    if (!DE.addEventListener && DE.attachEvent) {
-        DE.attachEvent("onfocusin", function () {
-            vOff = null;
+        $(W).bind("scroll resize", function () {
+            vSiz = vOff = null;
         });
+
+        // IE < 9 scrolls to focused elements without firing the "scroll" event
+        if (!DE.addEventListener && DE.attachEvent) {
+            DE.attachEvent("onfocusin", function () {
+                vOff = null;
+            });
+        }
     }
+    $(_init);
+
 }(window, jQuery));
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
