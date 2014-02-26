@@ -5,16 +5,22 @@
 (function (W, $) {
     var name = 'inview',
         inviewObjects = {},
-        time = 222,
-        vSiz, vOff, D, DE, expando;
+        speed = 222,
+        vSiz, vOff, C, D, DE;
 
-    C = W.console,
+    C = W.console;
     D = W.document;
     DE = D.documentElement;
-    expando = $.expando;
 
     function _def() {
         return (typeof arguments[0] !== 'undefined');
+    }
+
+    function getPortOffset() {
+        return {
+            left: W.pageXOffset || DE.scrollLeft || D.body.scrollLeft,
+            top: W.pageYOffset || DE.scrollTop || D.body.scrollTop
+        };
     }
 
     function getPortSize() {
@@ -39,13 +45,6 @@
         }
 
         return size;
-    }
-
-    function getPortOffset() {
-        return {
-            left: W.pageXOffset || DE.scrollLeft || D.body.scrollLeft,
-            top: W.pageYOffset || DE.scrollTop || D.body.scrollTop
-        };
     }
 
     (function () {
@@ -87,8 +86,8 @@
         });
 
         if ($eles.length) {
-            vSiz = vSiz || getPortSize();
             vOff = vOff || getPortOffset();
+            vSiz = vSiz || getPortSize();
 
             $eles.each(function (i, e) {
                 var $ele, eSiz, eOff, inView, visiX, visiY, visiMerged;
@@ -140,14 +139,14 @@
 
     $.event.special[name] = {
         add: function (data) {
-            inviewObjects[data.guid + "-" + this[expando]] = {
+            inviewObjects[data.guid + "-" + this[$.expando]] = {
                 data: data,
                 $ele: $(this)
             };
         },
         remove: function (data) {
             try {
-                delete inviewObjects[data.guid + "-" + this[expando]];
+                delete inviewObjects[data.guid + "-" + this[$.expando]];
             } catch (e) {}
         }
     };
@@ -172,7 +171,7 @@
 
             Don't set interval until we get at least one element that has bound to the inview event.
     */
-    W.setInterval(checkInView, time);
+    W.setInterval(checkInView, speed);
 
     $(function () {
         (W.debug > 1) && C.warn('kickstart jquery.' + name);

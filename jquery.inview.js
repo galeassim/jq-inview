@@ -5,28 +5,37 @@
 (function (W, $) {
     var name = 'inview',
         inviewObjects = {},
-        vSiz, vOff, D, DE, expando, port, propL, propT, timer;
+        vSiz, vOff, D, DE, vPort, speed, timer, xProp, yProp;
 
     D = W.document;
     DE = D.documentElement;
-    expando = $.expando;
-    propL = 'scrollLeft';
-    propT = 'scrollTop';
+    speed = 222;
+    xProp = 'scrollLeft';
+    yProp = 'scrollTop';
 
     function _def() {
         return (typeof arguments[0] !== 'undefined');
     }
 
-    if (_def(W.pageXOffset)) {
-        port = W;
-        propL = 'pageXOffset';
-        propT = 'pageYOffset';
-    } else if (_def(DE.scrollLeft)) {
-        port = DE;
-    } else {
-        port = D.body;
-    }
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+    (function configPort() {
+        if (_def(W.pageXOffset)) {
+            vPort = W;
+            xProp = 'pageXOffset';
+            yProp = 'pageYOffset';
+        } else if (_def(DE.scrollLeft)) {
+            vPort = DE;
+        } else {
+            vPort = D.body;
+        }
+    }());
+
+    function getPortOffset() {
+        return {
+            left: vPort[xProp],
+            top: vPort[yProp],
+        };
+    }
 
     function getPortSize() {
         var mode, domObject, size = {
@@ -52,13 +61,6 @@
         return size;
     }
 
-    function getPortOffset() {
-        return {
-            left: port[propL],
-            top: port[propT],
-        };
-    }
-
     function checkInView() {
         var $eles = $();
 
@@ -69,8 +71,8 @@
         });
 
         if ($eles.length) {
-            vSiz = vSiz || getPortSize();
             vOff = vOff || getPortOffset();
+            vSiz = vSiz || getPortSize();
 
             $eles.each(function (i, e) {
                 var $ele, eSiz, eOff, inView, visiX, visiY, visiMerged;
@@ -121,7 +123,7 @@
 
     $.event.special[name] = {
         add: function (data) {
-            inviewObjects[data.guid + "-" + this[expando]] = {
+            inviewObjects[data.guid + "-" + this[$.expando]] = {
                 data: data,
                 $ele: $(this)
             };
@@ -137,13 +139,13 @@
             Don't set interval until we get at least one element that has bound to the inview event.
             */
             if (!timer && !$.isEmptyObject(inviewObjects)) {
-                timer = W.setInterval(checkInView, 250);
+                timer = W.setInterval(checkInView, speed);
             }
         },
 
         remove: function (data) {
             try {
-                delete inviewObjects[data.guid + "-" + this[expando]];
+                delete inviewObjects[data.guid + "-" + this[$.expando]];
             } catch (e) {}
 
             // Clear interval when we no longer have any elements listening

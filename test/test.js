@@ -3,7 +3,7 @@
 
 QUnit.config.reorder = false;
 
-var TOms = 222;
+var TOms = 250;
 console.warn('Timeouts set at ', TOms);
 
 window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function (i, version) {
@@ -20,13 +20,16 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function (i, version) {
             }).appendTo("body");
 
             this.element = $('<div>', {
-                html: 'testing ...',
+                html: 'TEST<br>OBJ<br>ECT',
                 "class": 'test-element'
             }).css({
-                background: '#eee',
-                width: '50px',
+                background: 'lime',
+                backgroundColor: 'rgba(99, 222, 33, 0.5)',
                 height: '50px',
-                position: 'absolute'
+                padding: '1em',
+                position: 'absolute',
+                textAlign: 'center',
+                width: '50px',
             });
 
             this.element2 = this.element.clone();
