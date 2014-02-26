@@ -1,11 +1,17 @@
+/*jslint es5:true, white:false */
+/*globals QUnit, asyncTest, console, equal, expect, module, ok, setTimeout, start, strictEqual, window */
+
 QUnit.config.reorder = false;
 
-window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
-    var jQuery  = window[version],
-    $       = jQuery;
+var TOms = 222;
+console.warn('Timeouts set at ', TOms);
+
+window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function (i, version) {
+    var jQuery = window[version],
+        $ = jQuery;
 
     module('jquery.inview - ' + version, {
-        setup: function() {
+        setup: function () {
             $(window).scrollTop(0).scrollLeft(0);
 
             this.size = 20000;
@@ -18,15 +24,15 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
                 "class": 'test-element'
             }).css({
                 background: '#eee',
-                width:      '50px',
-                height:     '50px',
-                position:   'absolute'
+                width: '50px',
+                height: '50px',
+                position: 'absolute'
             });
 
             this.element2 = this.element.clone();
         },
 
-        teardown: function() {
+        teardown: function () {
             $(window).scrollTop(0).scrollLeft(0);
 
             this.container.remove();
@@ -35,173 +41,165 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
     });
 
 
-    asyncTest('Check vertical scrolling', function() {
+    asyncTest('Check vertical scrolling', function () {
         expect(5);
 
         var element = this.element,
-        firstCall,
-        secondCall,
-        thirdCall,
-        inView;
+            firstCall, secondCall, thirdCall, inView;
 
         element.css({
             left: 0,
             top: this.size - 50 + 'px'
         });
         element.appendTo('body');
-        element.bind('inview.firstCall', function() {
+        element.bind('inview.firstCall', function () {
             firstCall = true;
         });
 
-        setTimeout(function() {
+        setTimeout(function () {
             $(window).scrollTop(0).scrollLeft(0);
             ok(!firstCall, 'inview shouldn\'t be triggered initially when the element isn\'t in the viewport');
             element.unbind('inview.firstCall');
-            element.bind('inview.secondCall', function(event, inViewParam) {
+            element.bind('inview.secondCall', function (event, inViewParam) {
                 secondCall = true;
                 inView = inViewParam;
             });
 
             $(window).scrollTop(9999999);
 
-            setTimeout(function() {
+            setTimeout(function () {
 
                 ok(secondCall, 'Triggered handler after element appeared in viewport');
                 ok(inView, 'Parameter, indicating whether the element is in the viewport, is set to "true"');
                 element.unbind('inview.secondCall');
-                element.bind('inview.thirdCall', function(event, inViewParam) {
+                element.bind('inview.thirdCall', function (event, inViewParam) {
                     thirdCall = true;
                     inView = inViewParam;
                 });
 
                 $(window).scrollTop(0).scrollLeft(0);
 
-                setTimeout(function() {
+                setTimeout(function () {
                     ok(thirdCall, 'Triggered handler after element disappeared in viewport');
                     strictEqual(inView, false, 'Parameter, indicating whether the element is in the viewport, is set to "false"');
                     start();
-                }, 1000);
+                }, TOms);
 
-            }, 1000);
+            }, TOms);
 
-        }, 1000);
+        }, TOms);
     });
 
 
-    asyncTest('Check horizontal scrolling', function() {
+    asyncTest('Check horizontal scrolling', function () {
         expect(5);
 
         var element = this.element,
-        firstCall,
-        secondCall,
-        thirdCall,
-        inView;
+            firstCall, secondCall, thirdCall, inView;
 
         element.css({
             top: 0,
             left: this.size - 50 + 'px'
         });
         element.appendTo('body');
-        element.bind('inview.firstCall', function() {
+        element.bind('inview.firstCall', function () {
             firstCall = true;
         });
 
-        setTimeout(function() {
+        setTimeout(function () {
             $(window).scrollTop(0).scrollLeft(0);
 
             ok(!firstCall, 'inview shouldn\'t be triggered initially when the element isn\'t in the viewport');
             element.unbind('inview.firstCall');
-            element.bind('inview.secondCall', function(event, inViewParam) {
+            element.bind('inview.secondCall', function (event, inViewParam) {
                 secondCall = true;
                 inView = inViewParam;
             });
 
             $(window).scrollLeft(9999999);
 
-            setTimeout(function() {
+            setTimeout(function () {
 
                 ok(secondCall, 'Triggered handler after element appeared in viewport');
                 ok(inView, 'Parameter, indicating whether the element is in the viewport, is set to "true"');
                 element.unbind('inview.secondCall');
-                element.bind('inview.thirdCall', function(event, inViewParam) {
+                element.bind('inview.thirdCall', function (event, inViewParam) {
                     thirdCall = true;
                     inView = inViewParam;
                 });
 
                 $(window).scrollTop(0).scrollLeft(0);
 
-                setTimeout(function() {
+                setTimeout(function () {
                     ok(thirdCall, 'Triggered handler after element disappeared in viewport');
                     strictEqual(inView, false, 'Parameter, indicating whether the element is in the viewport, is set to "false"');
                     start();
-                }, 1000);
+                }, TOms);
 
-            }, 1000);
+            }, TOms);
 
-        }, 1000);
+        }, TOms);
     });
 
 
-    asyncTest('Move element into viewport without scrolling', function() {
+    asyncTest('Move element into viewport without scrolling', function () {
         expect(3);
 
-        var element = this.element, calls = 0;
+        var element = this.element,
+            calls = 0;
 
-        element
-        .css({
+        element.css({
             left: '-500px',
             top: 0
-        })
-        .appendTo('body')
-        .bind('inview', function(event) {
+        }).appendTo('body').bind('inview', function (event) {
             calls++;
         });
 
-        setTimeout(function() {
+        setTimeout(function () {
 
             equal(calls, 0, 'Callback hasn\'t been fired since the element isn\'t in the viewport');
             element.css({
                 left: 0
             });
 
-            setTimeout(function() {
+            setTimeout(function () {
 
                 equal(calls, 1, 'Callback has been fired after the element appeared in the viewport');
                 element.css({
                     left: '10000px'
                 });
 
-                setTimeout(function() {
+                setTimeout(function () {
 
                     equal(calls, 2, 'Callback has been fired after the element disappeared from viewport');
                     start();
 
-                }, 1000);
+                }, TOms);
 
-            }, 1000);
+            }, TOms);
 
-        }, 1000);
+        }, TOms);
     });
 
 
-    asyncTest('Check whether element which isn\'t in the dom tree triggers the callback', function() {
+    asyncTest('Check whether element which isn\'t in the dom tree triggers the callback', function () {
         expect(0);
 
-        this.element.bind('inview', function(event, isInView) {
+        this.element.bind('inview', function (event, isInView) {
             ok(false, 'Callback shouldn\'t be fired since the element isn\'t even in the dom tree');
             start();
         });
 
-        setTimeout(function() {
+        setTimeout(function () {
             start();
-        }, 1000);
+        }, TOms);
     });
 
 
-    asyncTest('Check whether element which is on the top outside of viewport is not firing the event', function() {
+    asyncTest('Check whether element which is on the top outside of viewport is not firing the event', function () {
         expect(0);
 
-        this.element.bind('inview', function(event, isInView) {
+        this.element.bind('inview', function (event, isInView) {
             ok(false, 'Callback shouldn\'t be fired since the element is outside of viewport');
             start();
         });
@@ -211,16 +209,16 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
             left: '50px'
         }).appendTo('body');
 
-        setTimeout(function() {
+        setTimeout(function () {
             start();
-        }, 1000);
+        }, TOms);
     });
 
 
-    asyncTest('Check whether element which is on the left outside of viewport is not firing the event', function() {
+    asyncTest('Check whether element which is on the left outside of viewport is not firing the event', function () {
         expect(0);
 
-        this.element.bind('inview', function(event, isInView) {
+        this.element.bind('inview', function (event, isInView) {
             ok(false, 'Callback shouldn\'t be fired since the element is outside of viewport');
             start();
         });
@@ -230,13 +228,13 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
             left: '-50px'
         }).appendTo('body');
 
-        setTimeout(function() {
+        setTimeout(function () {
             start();
-        }, 1000);
+        }, TOms);
     });
 
 
-    asyncTest('Check visiblePartX & visiblePartY parameters #1', function() {
+    asyncTest('Check visiblePartX & visiblePartY parameters #1', function () {
         expect(2);
 
         this.element.css({
@@ -244,7 +242,7 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
             left: '-25px'
         }).appendTo('body');
 
-        this.element.bind('inview', function(event, isInView, visiblePartX, visiblePartY) {
+        this.element.bind('inview', function (event, isInView, visiblePartX, visiblePartY) {
             equal(visiblePartX, 'right', 'visiblePartX has correct value');
             equal(visiblePartY, 'bottom', 'visiblePartY has correct value');
             start();
@@ -252,7 +250,7 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
     });
 
 
-    asyncTest('Check visiblePartX & visiblePartY parameters #2', function() {
+    asyncTest('Check visiblePartX & visiblePartY parameters #2', function () {
         expect(2);
 
         this.element.css({
@@ -260,7 +258,7 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
             left: '-25px'
         }).appendTo('body');
 
-        this.element.bind('inview', function(event, isInView, visiblePartX, visiblePartY) {
+        this.element.bind('inview', function (event, isInView, visiblePartX, visiblePartY) {
             equal(visiblePartX, 'right', 'visiblePartX has correct value');
             equal(visiblePartY, 'both', 'visiblePartY has correct value');
             start();
@@ -268,7 +266,7 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
     });
 
 
-    asyncTest('Check visiblePartX & visiblePartY parameters #3', function() {
+    asyncTest('Check visiblePartX & visiblePartY parameters #3', function () {
         expect(2);
 
         this.element.css({
@@ -276,7 +274,7 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
             left: '0'
         }).appendTo('body');
 
-        this.element.bind('inview', function(event, isInView, visiblePartX, visiblePartY) {
+        this.element.bind('inview', function (event, isInView, visiblePartX, visiblePartY) {
             equal(visiblePartX, 'both', 'visiblePartX has correct value');
             equal(visiblePartY, 'both', 'visiblePartY has correct value');
             start();
@@ -284,12 +282,12 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
     });
 
 
-    asyncTest('Check delegated events', function() {
+    asyncTest('Check delegated events', function () {
         expect(3);
 
         var that = this,
-        elems = $("body");
-        elems.on("inview", ".test-container > div.test-element", function(event) {
+            elems = $("body");
+        elems.on("inview", ".test-container > div.test-element", function (event) {
             elems.off("inview");
             ok(true, "Delegated event correctly fired");
             equal(event.currentTarget, that.element[0], "event.currentTarget correctly set");
@@ -304,9 +302,9 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
     });
 
 
-    asyncTest('Check namespaced delegated events', function() {
+    asyncTest('Check namespaced delegated events', function () {
         expect(1);
-        this.container.on("inview.foo", ".test-element", function(event) {
+        this.container.on("inview.foo", ".test-element", function (event) {
             ok(true, "Delegated event correctly fired");
             start();
         });
@@ -318,7 +316,7 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
     });
 
 
-    asyncTest('Check multiple elements', function() {
+    asyncTest('Check multiple elements', function () {
         expect(2);
 
         var i = 0;
@@ -328,7 +326,7 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
             left: '0'
         }).appendTo(this.container);
 
-        $('.test-element').bind('inview', function() {
+        $('.test-element').bind('inview', function () {
             ok(true);
             if (++i == 2) {
                 start();
@@ -337,9 +335,8 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
     });
 
     if (!("ontouchstart" in window)) {
-        asyncTest('Scroll to element via focus()', function() {
+        asyncTest('Scroll to element via focus()', function () {
             // This test will fail on iOS
-
             expect(1);
 
             var $input = $("<input>").css({
@@ -348,15 +345,15 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
                 left: "5000px"
             }).appendTo(this.container);
 
-            $input.bind('inview', function() {
+            $input.bind('inview', function () {
                 ok(true);
                 $input.remove();
                 start();
             });
 
-            setTimeout(function() {
+            setTimeout(function () {
                 $input.focus();
-            }, 1000);
+            }, TOms);
         });
     }
 });
