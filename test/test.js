@@ -1,6 +1,6 @@
 QUnit.config.reorder = false;
 
-window['jQuery 1.6'].each(['jQuery 1.4', 'jQuery 1.5', 'jQuery 1.6', 'jQuery 1.7', 'jQuery 1.8'], function(i, version) {
+window['jQuery 1.7'].each(['jQuery 1.7', 'jQuery 1.8', 'jQuery 1.9'], function(i, version) {
   var jQuery  = window[version],
       $       = jQuery;
 
@@ -261,7 +261,7 @@ window['jQuery 1.6'].each(['jQuery 1.4', 'jQuery 1.5', 'jQuery 1.6', 'jQuery 1.7
 
   asyncTest('Check "live" events', function() {
     expect(3);
-    
+
     var that = this,
         elems = $("body .test-container > div.test-element");
     elems.live("inview", function(event) {
@@ -329,7 +329,7 @@ window['jQuery 1.6'].each(['jQuery 1.4', 'jQuery 1.5', 'jQuery 1.6', 'jQuery 1.7
       }
     });
   });
-  
+
   if (!("ontouchstart" in window)) {
     asyncTest('Scroll to element via focus()', function() {
       // This test will fail on iOS
