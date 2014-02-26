@@ -1,6 +1,6 @@
 QUnit.config.reorder = false;
 
-window['jQuery 1.7'].each(['jQuery 1.7', 'jQuery 1.8', 'jQuery 1.9'], function(i, version) {
+window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
   var jQuery  = window[version],
       $       = jQuery;
 
