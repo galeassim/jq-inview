@@ -13,20 +13,9 @@
     DE = D.documentElement;
     expando = $.expando;
 
-
-    $.event.special.inview = {
-        add: function (data) {
-            inviewObjects[data.guid + "-" + this[expando]] = {
-                data: data,
-                $ele: $(this)
-            };
-        },
-        remove: function (data) {
-            try {
-                delete inviewObjects[data.guid + "-" + this[expando]];
-            } catch (e) {}
-        }
-    };
+    function _def() {
+        return (typeof arguments[0] !== 'undefined');
+    }
 
     function getPortSize() {
         var mode, domObject, size = {
@@ -89,8 +78,7 @@
         if (!W.dust) {
             return;
         }
-        var $eles = $(),
-            i = 0;
+        var $eles = $();
 
         $.each(inviewObjects, function (i, inviewObject) {
             var selector = inviewObject.data.selector,
@@ -102,18 +90,18 @@
             vSiz = vSiz || getPortSize();
             vOff = vOff || getPortOffset();
 
-            for (; i < $eles.length; i++) {
+            $eles.each(function (i, e) {
                 var $ele, eSiz, eOff, inView, visiX, visiY, visiMerged;
 
                 // Ignore elements that are not in the DOM tree
                 if (!$.contains(DE, $eles[i])) {
-                    continue;
+                    return;
                 }
 
                 $ele = $($eles[i]);
                 eSiz = {
                     height: $ele.height(),
-                    width: $ele.width()
+                    width: $ele.width(),
                 };
                 eOff = $ele.offset();
                 inView = $ele.data(name);
@@ -145,11 +133,24 @@
                 } else if (inView) {
                     $ele.data(name, false).trigger(name, [false]);
                 }
-
-            }
+            });
         }
         W.dust(-1);
     }
+
+    $.event.special[name] = {
+        add: function (data) {
+            inviewObjects[data.guid + "-" + this[expando]] = {
+                data: data,
+                $ele: $(this)
+            };
+        },
+        remove: function (data) {
+            try {
+                delete inviewObjects[data.guid + "-" + this[expando]];
+            } catch (e) {}
+        }
+    };
 
     $(W).bind("scroll resize", function () {
         vSiz = vOff = null;
