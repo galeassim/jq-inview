@@ -259,31 +259,13 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
   });
 
 
-  asyncTest('Check "live" events', function() {
+  asyncTest('Check delegated events', function() {
     expect(3);
 
     var that = this,
-        elems = $("body .test-container > div.test-element");
-    elems.live("inview", function(event) {
-      elems.die("inview");
-      ok(true, "Live event correctly fired");
-      equal(event.currentTarget, that.element[0], "event.currentTarget correctly set");
-      equal(this, that.element[0], "Handler bound to target element");
-      start();
-    });
-
-    this.element.css({
-      top: '0',
-      left: '0'
-    }).appendTo(this.container);
-  });
-
-
-  asyncTest('Check "delegate" events', function() {
-    expect(3);
-
-    var that = this;
-    this.container.delegate(".test-element", "inview", function(event) {
+        elems = $("body");
+    elems.on("inview", ".test-container > div.test-element", function(event) {
+      elems.off("inview");
       ok(true, "Delegated event correctly fired");
       equal(event.currentTarget, that.element[0], "event.currentTarget correctly set");
       equal(this, that.element[0], "Handler bound to target element");
@@ -297,10 +279,9 @@ window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function(i, version) {
   });
 
 
-  asyncTest('Check namespaced "delegate" events', function() {
+  asyncTest('Check namespaced delegated events', function() {
     expect(1);
-
-    this.container.delegate(".test-element", "inview.foo", function(event) {
+    this.container.on("inview.foo", ".test-element", function(event) {
       ok(true, "Delegated event correctly fired");
       start();
     });
