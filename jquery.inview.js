@@ -2,7 +2,7 @@
 /*globals jQuery, window */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-(function ($, W) {
+(function (W, $) {
     var name = 'inview',
         inviewObjects = {},
         vSiz, vOff, D, DE, expando, port, propL, propT, timer;
@@ -164,5 +164,5 @@
             vOff = null;
         });
     }
-}(jQuery, window));
+}(window, jQuery));
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
