@@ -2,11 +2,6 @@
 /*globals jQuery, window */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-/**
- * author Christopher Blum
- *    - based on the idea of Remy Sharp, http://remysharp.com/2009/01/26/element-in-view-event-plugin/
- *    - forked from http://github.com/zuk/jquery.inview/
- */
 (function (W, $) {
     var C = W.console,
         D = W.document,
@@ -39,8 +34,9 @@
             width: W.innerWidth
         };
 
-        // if this is correct then return it. iPad has compat Mode, so will
-        // go into check clientHeight/clientWidth (which has the wrong value).
+        // if this is correct then return it.
+        // iPad has compat Mode, so will go into check clientHeight/clientWidth
+        // (which has the wrong value).
         if (!size.height) {
             mode = D.compatMode;
             if (mode || !$.support.boxModel) { // IE, Gecko
@@ -52,6 +48,7 @@
                 };
             }
         }
+
         return size;
     }
 
@@ -121,11 +118,10 @@
                     inView = $element.data(name),
                     visiblePartX, visiblePartY, visiblePartsMerged;
                 /*
-Don't ask me why because I haven't figured out yet:
-viewportOffset and viewportSize are sometimes suddenly null in Firefox 5.
-Even though it sounds weird:
-It seems that the execution of this function is interferred by the onresize/onscroll event
-where viewportOffset and viewportSize are unset
+                For unknown reasons:
+                    viewportOffset and viewportSize are sometimes suddenly null in Firefox 5.
+                    It seems that the execution of this function is interferred
+                        by the onresize/onscroll event where viewportOffset and viewportSize are unset
                 */
                 if (!viewportOffset || !viewportSize) {
                     return;
@@ -164,13 +160,14 @@ where viewportOffset and viewportSize are unset
         });
     }
     /*
-Use setInterval in order to also make sure this captures elements within
-"overflow:scroll" elements or elements that appeared in the dom tree due to
-dom manipulation and reflow
-old: $(window).scroll(checkInView);
+            Use setInterval to ensure this captures elements within "overflow:scroll" elements
+            or elements that appeared in the dom tree due to dom manipulation and reflow
+            old: $(window).scroll(checkInView);
 
-By the way, iOS (iPad, iPhone, ...) seems to not execute, or at least delays
-intervals while the user scrolls. Therefore the inview event might fire a bit late there
+            BTW, iOS seems to not execute (or delay) intervals while the user scrolls.
+            Therefore the inview event might fire a bit late there
+
+            Don't set interval until we get at least one element that has bound to the inview event.
     */
     W.setInterval(checkInView, time);
 
@@ -180,3 +177,4 @@ intervals while the user scrolls. Therefore the inview event might fire a bit la
     });
 
 }(window, jQuery));
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
