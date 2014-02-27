@@ -3,7 +3,7 @@
 
 QUnit.config.reorder = false;
 
-var TOms = 250;
+var TOms = 111;
 console.warn('Timeouts set at ', TOms);
 
 window['jQuery 1.8'].each(['jQuery 1.8', 'jQuery 1.9'], function (i, version) {

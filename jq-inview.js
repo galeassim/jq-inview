@@ -4,17 +4,22 @@
 
 (function (W, $) {
     var name = 'inview',
-        inviewObjects = {},
-        speed = 222,
-        vSiz, vOff, C, D, DE;
+        vSiz, vOff, C, D, DE, Df;
+    //
+    function _def() {
+        return (typeof arguments[0] !== 'undefined');
+    }
 
     C = W.console;
     D = W.document;
     DE = D.documentElement;
-
-    function _def() {
-        return (typeof arguments[0] !== 'undefined');
-    }
+    Df = {
+        cache: {},
+        speed: 100,
+        count: 0,
+        inits: function () {},
+    };
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
     function getPortOffset() {
         return {
@@ -79,7 +84,7 @@
         }
         var $eles = $();
 
-        $.each(inviewObjects, function (i, inviewObject) {
+        $.each(Df.cache, function (i, inviewObject) {
             var selector = inviewObject.data.selector,
                 $ele = inviewObject.$ele;
             $eles = $eles.add(selector ? $ele.find(selector) : $ele);
@@ -137,31 +142,44 @@
         W.dust(-1);
     }
 
+    function _forceCheck() {
+        if (W.debug > 1) {
+            C.debug('_forceCheck');
+        }
+        checkInView();
+        Df.count++;
+    }
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
     $.event.special[name] = {
         add: function (data) {
-            inviewObjects[data.guid + "-" + this[$.expando]] = {
+            Df.cache[data.guid + "-" + this[$.expando]] = {
                 data: data,
                 $ele: $(this)
             };
         },
         remove: function (data) {
             try {
-                delete inviewObjects[data.guid + "-" + this[$.expando]];
+                delete Df.cache[data.guid + "-" + this[$.expando]];
             } catch (e) {}
         }
     };
 
-    $(W).bind("scroll resize", function () {
-        vSiz = vOff = null;
-    });
+    function _init() {
+        Df.inits();
+        W.INVIEW = Df;
 
-    // IE < 9 scrolls to focused elements without firing the "scroll" event
-    if (!DE.addEventListener && DE.attachEvent) {
-        DE.attachEvent("onfocusin", function () {
-            vOff = null;
+        $(W).bind("scroll resize", function () {
+            vSiz = vOff = null;
         });
-    }
-    /*
+
+        // IE < 9 scrolls to focused elements without firing the "scroll" event
+        if (!DE.addEventListener && DE.attachEvent) {
+            DE.attachEvent("onfocusin", function () {
+                vOff = null;
+            });
+        }
+        /*
             Use setInterval to ensure this captures elements within "overflow:scroll" elements
             or elements that appeared in the dom tree due to dom manipulation and reflow
             old: $(window).scroll(checkInView);
@@ -170,13 +188,18 @@
             Therefore the inview event might fire a bit late there
 
             Don't set interval until we get at least one element that has bound to the inview event.
-    */
-    W.setInterval(checkInView, speed);
+        */
 
-    $(function () {
-        (W.debug > 1) && C.warn('kickstart jquery.' + name);
-        $(W).scroll();
-    });
+        $(function () {
+            (W.debug > 1) && C.warn('kickstart jquery.' + name);
+            $(W).scroll();
+        });
+        if (Df.speed > 10) {
+            W.setInterval(_forceCheck, Df.speed);
+        }
+    }
+
+    $(_init);
 
 }(window, jQuery));
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
