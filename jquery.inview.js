@@ -98,12 +98,7 @@
                 eOff = $ele.offset();
                 inView = $ele.data(name);
 
-                /*
-                For unknown reasons:
-                    viewportOffset and viewportSize are sometimes suddenly null in Firefox 5.
-                    It seems that the execution of this function is interferred
-                        by the onresize/onscroll event where viewportOffset and viewportSize are unset
-                */
+                /* note #2 */
                 if (!vOff || !vSiz) {
                     return;
                 }
@@ -144,16 +139,7 @@
                 data: data,
                 $ele: $(this)
             };
-            /*
-            Use setInterval to ensure this captures elements within "overflow:scroll" elements
-            or elements that appeared in the dom tree due to dom manipulation and reflow
-            old: $(window).scroll(checkInView);
-
-            BTW, iOS seems to not execute (or delay) intervals while the user scrolls.
-            Therefore the inview event might fire a bit late there
-
-            Don't set interval until we get at least one element that has bound to the inview event.
-            */
+            /* note #3 */
             if (!Df.timer && !$.isEmptyObject(Df.cache)) {
                 Df.timer = W.setInterval(_forceCheck, Df.prsec);
             }
@@ -191,3 +177,20 @@
 
 }(window, jQuery));
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+/* notes
+#2
+    For unknown reasons:
+    viewportOffset and viewportSize are sometimes suddenly null in Firefox 5.
+    It seems that the execution of this function is interferred
+    by the onresize/onscroll event where viewportOffset and viewportSize are unset
+
+#3
+    Don't set interval until we get at least one element that has bound to the inview event.
+
+    Use setInterval to ensure this captures elements within "overflow:scroll" elements
+    or elements that appeared in the dom tree due to dom manipulation and reflow
+    old: $(window).scroll(checkInView);
+
+    BTW, iOS seems to not execute (or delay) intervals while the user scrolls.
+    Therefore the inview event might fire a bit late there
+*/

@@ -34,9 +34,7 @@
             width: W.innerWidth
         };
 
-        // if this is correct then return it.
-        // iPad has compat Mode, so will go into check clientHeight/clientWidth
-        // (which has the wrong value).
+        /* note #2 */
         if (!size.height) {
             mode = D.compatMode;
             if (mode || !$.support.boxModel) { // IE, Gecko
@@ -179,21 +177,12 @@
                 vOff = null;
             });
         }
-        /*
-            Use setInterval to ensure this captures elements within "overflow:scroll" elements
-            or elements that appeared in the dom tree due to dom manipulation and reflow
-            old: $(window).scroll(checkInView);
-
-            BTW, iOS seems to not execute (or delay) intervals while the user scrolls.
-            Therefore the inview event might fire a bit late there
-
-            Don't set interval until we get at least one element that has bound to the inview event.
-        */
 
         $(function () {
             (W.debug > 1) && C.warn('kickstart jquery.' + name);
             $(W).scroll();
         });
+        /* note #3 */
         if (Df.speed > 10) {
             W.setInterval(_forceCheck, Df.speed);
         }
@@ -203,3 +192,19 @@
 
 }(window, jQuery));
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+/* notes
+#2
+    if this is correct then return it.
+    iPad has compat Mode, so will go into check clientHeight/clientWidth
+    (which has the wrong value).
+
+#3
+    Don't set interval until we get at least one element that has bound to the inview event.
+
+    Use setInterval to ensure this captures elements within "overflow:scroll" elements
+    or elements that appeared in the dom tree due to dom manipulation and reflow
+    old: $(window).scroll(checkInView);
+
+    BTW, iOS seems to not execute (or delay) intervals while the user scrolls.
+    Therefore the inview event might fire a bit late there
+*/
